@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edges>
+    <!-- incoming -->
+    <edge id="n2c" from="n" to="c" numLanes="3" speed="13.9"/>
+    <edge id="s2c" from="s" to="c" numLanes="3" speed="13.9"/>
+    <edge id="e2c" from="e" to="c" numLanes="3" speed="13.9"/>
+    <edge id="w2c" from="w" to="c" numLanes="3" speed="13.9"/>
+
+    <!-- outgoing -->
+    <edge id="c2n" from="c" to="n" numLanes="3" speed="13.9"/>
+    <edge id="c2s" from="c" to="s" numLanes="3" speed="13.9"/>
+    <edge id="c2e" from="c" to="e" numLanes="3" speed="13.9"/>
+    <edge id="c2w" from="c" to="w" numLanes="3" speed="13.9"/>
+</edges>

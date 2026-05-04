@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+
+<vType id="car"
+       accel="2.6" decel="4.5"
+       length="5.0" minGap="2.5"
+       maxSpeed="13.9"
+
+       departLane="random"
+
+       lcStrategic="5.0"
+       lcSpeedGain="5.0"
+       lcCooperative="0.1"
+       lcKeepRight="0.0"
+
+       lcAssertive="2.0"
+       lcPushy="0.6"
+       lcImpatience="0.8"
+       lcTimeToImpatience="60"/>
+
+  <!-- Straight movements through the junction -->
+  <route id="N_S" edges="n2c c2s"/>
+  <route id="S_N" edges="s2c c2n"/>
+  <route id="E_W" edges="e2c c2w"/>
+  <route id="W_E" edges="w2c c2e"/>
+
+  <!-- Vehicles per hour (increase if you want more cars) -->
+  <flow id="flow_NS" type="car" route="N_S" begin="0" end="3600" vehsPerHour="900" departLane="random" departSpeed="max"/>
+  <flow id="flow_SN" type="car" route="S_N" begin="0" end="3600" vehsPerHour="900" departLane="random" departSpeed="max"/>
+  <flow id="flow_EW" type="car" route="E_W" begin="0" end="3600" vehsPerHour="900" departLane="random" departSpeed="max"/>
+  <flow id="flow_WE" type="car" route="W_E" begin="0" end="3600" vehsPerHour="900" departLane="random" departSpeed="max"/>
+  <!-- Right turn routes (right-hand traffic) -->
+  <route id="N_W" edges="n2c c2w"/>
+  <route id="S_E" edges="s2c c2e"/>
+  <route id="E_N" edges="e2c c2n"/>
+  <route id="W_S" edges="w2c c2s"/>
+
+  <!-- Add some right-turn flows -->
+  <flow id="flow_NW" type="car" route="N_W" begin="0" end="3600" vehsPerHour="250" departLane="random" departSpeed="max"/>
+  <flow id="flow_SE" type="car" route="S_E" begin="0" end="3600" vehsPerHour="250" departLane="random" departSpeed="max"/>
+  <flow id="flow_EN" type="car" route="E_N" begin="0" end="3600" vehsPerHour="250" departLane="random" departSpeed="max"/>
+  <flow id="flow_WS" type="car" route="W_S" begin="0" end="3600" vehsPerHour="250" departLane="random" departSpeed="max"/>
+
+</routes>

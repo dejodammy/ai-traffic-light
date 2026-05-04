@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+
+  <vType id="car"
+         accel="2.6" decel="4.5"
+         length="5.0" minGap="2.5"
+         maxSpeed="13.9"
+         sigma="0.6"
+         lcStrategic="5.0"
+         lcSpeedGain="5.0"
+         lcCooperative="0.1"
+         lcKeepRight="0.0"
+         lcAssertive="2.0"
+         lcPushy="0.7"
+         lcImpatience="0.9"
+         lcTimeToImpatience="45"/>
+
+  <!-- STRAIGHT -->
+  <route id="N_S" edges="n2c c2s"/>
+  <route id="S_N" edges="s2c c2n"/>
+  <route id="E_W" edges="e2c c2w"/>
+  <route id="W_E" edges="w2c c2e"/>
+
+  <!-- LEFT -->
+  <route id="N_W" edges="n2c c2w"/>
+  <route id="S_E" edges="s2c c2e"/>
+  <route id="E_N" edges="e2c c2n"/>
+  <route id="W_S" edges="w2c c2s"/>
+
+  <!-- RIGHT -->
+  <route id="N_E" edges="n2c c2e"/>
+  <route id="S_W" edges="s2c c2w"/>
+  <route id="E_S" edges="e2c c2s"/>
+  <route id="W_N" edges="w2c c2n"/>
+
+  <!-- FLOWS (you can tune vehsPerHour) -->
+  <flow id="fNS" type="car" route="N_S" begin="0" end="3600" vehsPerHour="700" departLane="random" departSpeed="max"/>
+  <flow id="fSN" type="car" route="S_N" begin="0" end="3600" vehsPerHour="700" departLane="random" departSpeed="max"/>
+  <flow id="fEW" type="car" route="E_W" begin="0" end="3600" vehsPerHour="700" departLane="random" departSpeed="max"/>
+  <flow id="fWE" type="car" route="W_E" begin="0" end="3600" vehsPerHour="700" departLane="random" departSpeed="max"/>
+
+  <flow id="fNW" type="car" route="N_W" begin="0" end="3600" vehsPerHour="250" departLane="random" departSpeed="max"/>
+  <flow id="fSE" type="car" route="S_E" begin="0" end="3600" vehsPerHour="250" departLane="random" departSpeed="max"/>
+  <flow id="fEN" type="car" route="E_N" begin="0" end="3600" vehsPerHour="250" departLane="random" departSpeed="max"/>
+  <flow id="fWS" type="car" route="W_S" begin="0" end="3600" vehsPerHour="250" departLane="random" departSpeed="max"/>
+
+  <flow id="fNE" type="car" route="N_E" begin="0" end="3600" vehsPerHour="250" departLane="random" departSpeed="max"/>
+  <flow id="fSW" type="car" route="S_W" begin="0" end="3600" vehsPerHour="250" departLane="random" departSpeed="max"/>
+  <flow id="fES" type="car" route="E_S" begin="0" end="3600" vehsPerHour="250" departLane="random" departSpeed="max"/>
+  <flow id="fWN" type="car" route="W_N" begin="0" end="3600" vehsPerHour="250" departLane="random" departSpeed="max"/>
+
+</routes>

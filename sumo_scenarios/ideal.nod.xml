@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nodes>
+    <node id="n" x="0" y="300" type="priority"/>
+    <node id="s" x="0" y="-300" type="priority"/>
+    <node id="e" x="300" y="0" type="priority"/>
+    <node id="w" x="-300" y="0" type="priority"/>
+
+    <!-- center junction is the single RL-controlled intersection -->
+    <node id="c" x="0" y="0" type="traffic_light"/>
+</nodes>

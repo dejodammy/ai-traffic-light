@@ -1,0 +1,10 @@
+<configuration>
+  <input>
+    <net-file value="lagos.net.xml"/>
+    <route-files value="lagos.rou.xml"/>
+  </input>
+  <time>
+    <begin value="0"/>
+    <end value="3600"/>
+  </time>
+</configuration>
