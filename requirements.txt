@@ -2,6 +2,8 @@ matplotlib
 numpy
 opencv-python
 pytest
+roboflow
+websockets
 sumolib
 torch
 traci

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+
+  <!-- Asymmetric, saturated "rush-hour" variant of the Lagos intersection.
+       E-W is a heavy arterial; N-S is a light cross street. A surge between
+       150s and 750s pushes the arterial toward saturation.
+       NOTE: flows must be sorted by begin time — all begin=0 flows first,
+       then begin=150 surge flows. -->
+
+  <!-- Emergency vehicle type: faster, ignores foes at junction -->
+  <vType id="emergency_veh"
+         vClass="emergency"
+         guiShape="emergency"
+         color="1,0,0"
+         accel="3.0" decel="5.0"
+         length="6.5" minGap="1.5"
+         maxSpeed="22.2"
+         speedFactor="1.5"
+         jmIgnoreKeepClearTime="0"
+         jmIgnoreFoeSpeed="100"
+         jmIgnoreFoeProb="1.0"/>
+
+  <vType id="car"
+         accel="2.6" decel="4.5"
+         length="5.0" minGap="2.5"
+         maxSpeed="13.9"
+
+         departLane="random"
+
+         lcStrategic="5.0"
+         lcSpeedGain="5.0"
+         lcCooperative="0.1"
+         lcKeepRight="0.0"
+
+         lcAssertive="2.0"
+         lcPushy="0.6"
+         lcImpatience="0.8"
+         lcTimeToImpatience="60"/>
+
+  <!-- Straight movements through the junction -->
+  <route id="N_S" edges="n2c c2s"/>
+  <route id="S_N" edges="s2c c2n"/>
+  <route id="E_W" edges="e2c c2w"/>
+  <route id="W_E" edges="w2c c2e"/>
+
+  <!-- Right turns (right-hand traffic) -->
+  <route id="N_W" edges="n2c c2w"/>
+  <route id="S_E" edges="s2c c2e"/>
+  <route id="E_N" edges="e2c c2n"/>
+  <route id="W_S" edges="w2c c2s"/>
+
+  <!-- ===== All begin=0 flows first ===== -->
+
+  <!-- E-W heavy arterial base -->
+  <flow id="ew_base" type="car" route="E_W" begin="0" end="3600" vehsPerHour="1200" departLane="random" departSpeed="max"/>
+  <flow id="we_base" type="car" route="W_E" begin="0" end="3600" vehsPerHour="1200" departLane="random" departSpeed="max"/>
+
+  <!-- Arterial right turns -->
+  <flow id="en_rt" type="car" route="E_N" begin="0" end="3600" vehsPerHour="300" departLane="random" departSpeed="max"/>
+  <flow id="ws_rt" type="car" route="W_S" begin="0" end="3600" vehsPerHour="300" departLane="random" departSpeed="max"/>
+
+  <!-- N-S light cross street -->
+  <flow id="ns_base" type="car" route="N_S" begin="0" end="3600" vehsPerHour="350" departLane="random" departSpeed="max"/>
+  <flow id="sn_base" type="car" route="S_N" begin="0" end="3600" vehsPerHour="350" departLane="random" departSpeed="max"/>
+
+  <!-- Cross-street right turns -->
+  <flow id="nw_rt" type="car" route="N_W" begin="0" end="3600" vehsPerHour="100" departLane="random" departSpeed="max"/>
+  <flow id="se_rt" type="car" route="S_E" begin="0" end="3600" vehsPerHour="100" departLane="random" departSpeed="max"/>
+
+  <!-- ===== begin=150 rush-hour surge on the arterial (after all begin=0) ===== -->
+  <flow id="ew_peak" type="car" route="E_W" begin="150" end="750" vehsPerHour="700" departLane="random" departSpeed="max"/>
+  <flow id="we_peak" type="car" route="W_E" begin="150" end="750" vehsPerHour="700" departLane="random" departSpeed="max"/>
+
+  <!-- ===== Emergency vehicles — ~1 per approach per 10 minutes ===== -->
+  <!-- begin=200 so all begin=0 flows are registered first -->
+  <flow id="em_ew" type="emergency_veh" route="E_W" begin="200" end="3400" vehsPerHour="6" departLane="first" departSpeed="max"/>
+  <flow id="em_we" type="emergency_veh" route="W_E" begin="250" end="3400" vehsPerHour="6" departLane="first" departSpeed="max"/>
+  <flow id="em_ns" type="emergency_veh" route="N_S" begin="300" end="3400" vehsPerHour="6" departLane="first" departSpeed="max"/>
+  <flow id="em_sn" type="emergency_veh" route="S_N" begin="350" end="3400" vehsPerHour="6" departLane="first" departSpeed="max"/>
+
+</routes>

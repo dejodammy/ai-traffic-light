@@ -190,6 +190,45 @@ class SumoRLEnv:
         }
         return state, float(reward), done, info
 
+    @property
+    def approach_ids(self) -> list[str]:
+        return list(self._approach_ids)
+
+    def approach_queue_map(self) -> dict[str, float]:
+        return {a: self._approach_metrics(a)[0] for a in self._approach_ids}
+
+    def served_approaches(self, action: int) -> list[str]:
+        """Return the approach ids that get a green signal for this action."""
+        if not self._action_phases or action >= len(self._action_phases):
+            return []
+        phase_index = self._action_phases[action]
+        logic = traci.trafficlight.getAllProgramLogics(self.cfg.tls_id)[0]
+        links = traci.trafficlight.getControlledLinks(self.cfg.tls_id)
+        phase = logic.phases[phase_index]
+        served: set[str] = set()
+        for link_index, signal_state in enumerate(phase.state):
+            if signal_state not in {"G", "g"}:
+                continue
+            if link_index >= len(links) or not links[link_index]:
+                continue
+            lane_id = links[link_index][0][0]
+            served.add(self._approach_name(lane_id))
+        return [a for a in self._approach_ids if a in served]
+
+    def emergency_approach(self) -> str | None:
+        """Return the approach id of the nearest emergency vehicle, or None.
+
+        Scans all approach lanes for vehicles with vClass='emergency'. The first
+        approach found (in approach_id order) is returned so the caller can
+        preempt the signal for that direction.
+        """
+        for approach in self._approach_ids:
+            for lane in self._approach_lanes.get(approach, []):
+                for veh_id in traci.lane.getLastStepVehicleIDs(lane):
+                    if traci.vehicle.getVehicleClass(veh_id) == "emergency":
+                        return approach
+        return None
+
     def close(self) -> None:
         if traci.isLoaded():
             traci.close()

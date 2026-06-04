@@ -39,6 +39,34 @@ def _scenario_presets() -> dict[str, ScenarioPreset]:
             sumocfg=PROJECT_ROOT / "sumo_scenarios1" / "intersection.sumocfg",
             tls_id="center",
         ),
+        "lagos_peak": ScenarioPreset(
+            name="lagos_peak",
+            sumocfg=PROJECT_ROOT / "sumo_scenarios1" / "intersection_peak.sumocfg",
+            tls_id="center",
+            decision_interval=5,
+            switch_penalty=0.1,
+        ),
+        "lagos_low": ScenarioPreset(
+            name="lagos_low",
+            sumocfg=PROJECT_ROOT / "sumo_scenarios1" / "intersection_low.sumocfg",
+            tls_id="center",
+            decision_interval=5,
+            switch_penalty=0.1,
+        ),
+        "lagos_extreme": ScenarioPreset(
+            name="lagos_extreme",
+            sumocfg=PROJECT_ROOT / "sumo_scenarios1" / "intersection_extreme.sumocfg",
+            tls_id="center",
+            decision_interval=5,
+            switch_penalty=0.1,
+        ),
+        "lagos_reversed": ScenarioPreset(
+            name="lagos_reversed",
+            sumocfg=PROJECT_ROOT / "sumo_scenarios1" / "intersection_reversed.sumocfg",
+            tls_id="center",
+            decision_interval=5,
+            switch_penalty=0.1,
+        ),
     }
 
 

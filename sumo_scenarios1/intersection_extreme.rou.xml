@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+
+  <!-- Extreme asymmetry variant: E-W arterial pushed to near-capacity,
+       N-S cross street almost empty. Tests whether the controller scales
+       under severe demand imbalance. -->
+
+  <vType id="car"
+         accel="2.6" decel="4.5"
+         length="5.0" minGap="2.5"
+         maxSpeed="13.9"
+         departLane="random"
+         lcStrategic="5.0"
+         lcSpeedGain="5.0"
+         lcCooperative="0.1"
+         lcKeepRight="0.0"
+         lcAssertive="2.0"
+         lcPushy="0.6"
+         lcImpatience="0.8"
+         lcTimeToImpatience="60"/>
+
+  <route id="N_S" edges="n2c c2s"/>
+  <route id="S_N" edges="s2c c2n"/>
+  <route id="E_W" edges="e2c c2w"/>
+  <route id="W_E" edges="w2c c2e"/>
+  <route id="N_W" edges="n2c c2w"/>
+  <route id="S_E" edges="s2c c2e"/>
+  <route id="E_N" edges="e2c c2n"/>
+  <route id="W_S" edges="w2c c2s"/>
+
+  <!-- All begin=0 flows first -->
+  <flow id="ew_base" type="car" route="E_W" begin="0" end="3600" vehsPerHour="2000" departLane="random" departSpeed="max"/>
+  <flow id="we_base" type="car" route="W_E" begin="0" end="3600" vehsPerHour="2000" departLane="random" departSpeed="max"/>
+  <flow id="en_rt"   type="car" route="E_N" begin="0" end="3600" vehsPerHour="500"  departLane="random" departSpeed="max"/>
+  <flow id="ws_rt"   type="car" route="W_S" begin="0" end="3600" vehsPerHour="500"  departLane="random" departSpeed="max"/>
+  <flow id="ns_base" type="car" route="N_S" begin="0" end="3600" vehsPerHour="100"  departLane="random" departSpeed="max"/>
+  <flow id="sn_base" type="car" route="S_N" begin="0" end="3600" vehsPerHour="100"  departLane="random" departSpeed="max"/>
+  <flow id="nw_rt"   type="car" route="N_W" begin="0" end="3600" vehsPerHour="30"   departLane="random" departSpeed="max"/>
+  <flow id="se_rt"   type="car" route="S_E" begin="0" end="3600" vehsPerHour="30"   departLane="random" departSpeed="max"/>
+
+  <!-- begin=150 surge -->
+  <flow id="ew_peak" type="car" route="E_W" begin="150" end="750" vehsPerHour="1000" departLane="random" departSpeed="max"/>
+  <flow id="we_peak" type="car" route="W_E" begin="150" end="750" vehsPerHour="1000" departLane="random" departSpeed="max"/>
+
+</routes>

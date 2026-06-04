@@ -11,7 +11,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-
 @dataclass(slots=True)
 class DQNConfig:
     gamma: float = 0.99

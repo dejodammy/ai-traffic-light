@@ -110,6 +110,25 @@ Run image-based inference:
 python src/main.py detect --image sumo_scenarios1/cropped_traffic.png --checkpoint results/ideal_run/best_dqn_model.pt
 ```
 
+Generate a side-by-side DQN vs fixed-time comparison GIF:
+
+```powershell
+python src/main.py compare --checkpoint results/lagos_peak_pretrain/expert_pretrained_dqn_model.pt --scenario lagos_peak --output results/comparison.gif
+```
+
+The GIF shows both controllers on the same traffic simultaneously: an intersection diagram with queued car blocks and traffic-light indicators, plus a live total-queue chart underneath. The output is at `results/comparison.gif`.
+
+Run live on a webcam or video feed (real-time control loop):
+
+```powershell
+python src/main.py live --checkpoint results/ideal_run/best_dqn_model.pt --source 0 --decision-interval 2
+```
+
+`--source` accepts a webcam index (e.g. `0`) or a path to a video file. Use
+`--no-display` for headless operation (e.g. on a Raspberry Pi), and
+`--max-decisions N` to stop after N decisions. Each decision is printed as the
+per-approach vehicle counts and the chosen phase.
+
 ## Tests
 
 ```powershell
