@@ -1,0 +1,1 @@
+<configuration><input><net-file value="lagos_single.net.xml"/><route-files value="_empty.rou.xml"/></input><time><begin value="0"/><end value="10"/></time></configuration>

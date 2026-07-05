@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+  <!-- Faithful single Allen/Awolowo junction, BALANCED demand: now that Allen Ave
+       is 2 lanes, its realistic demand is higher (~600 veh/h/dir) - closer to the
+       arterial. Harder case for adaptive control (fixed 50/50 timer is nearer
+       optimal when demand is balanced). -->
+
+  <vType id="car" accel="2.6" decel="4.5" length="5.0" minGap="2.5"
+         maxSpeed="13.9" departLane="random" lcImpatience="0.8"/>
+
+  <!-- ===== Obafemi Awolowo Way arterial (phase 0) ===== -->
+  <flow id="awolowo_a" type="car" begin="0" end="3600" from="610011092#2" to="135617573#1" vehsPerHour="760" departSpeed="max"/>
+  <flow id="awolowo_b" type="car" begin="0" end="3600" from="134404792#3" to="135195291#2" vehsPerHour="760" departSpeed="max"/>
+
+  <!-- ===== Allen Avenue cross street (phase 2), now 2-lane ~600 veh/h/dir ===== -->
+  <flow id="allen_a" type="car" begin="0" end="3600" from="136338240#2" to="134404770#4" vehsPerHour="600" departSpeed="max"/>
+  <flow id="allen_b" type="car" begin="0" end="3600" from="135617577#1" to="134404795#1" vehsPerHour="600" departSpeed="max"/>
+
+</routes>

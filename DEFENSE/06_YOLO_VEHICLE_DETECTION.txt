@@ -1,0 +1,84 @@
+================================================================================
+  YOLO VEHICLE DETECTION + COUNTING  (the "eyes" of the system)
+================================================================================
+
+WHY THIS MATTERS FOR THE DEFENSE
+  Your controller decides based on how many vehicles are waiting on each
+  approach. In simulation those counts come from SUMO. In the REAL world they
+  come from a camera running a YOLOv8 vehicle detector. This demo proves that
+  perception step works: it detects actual vehicles and counts them live, and
+  the count prints in the terminal - exactly the number that would feed the
+  controller on a Raspberry Pi.
+
+--------------------------------------------------------------------------------
+  TWO WAYS TO RUN IT (scripts\ - just double-click)
+--------------------------------------------------------------------------------
+
+  >> 4_YOLO_Live_Webcam_Count.bat   (the LIVE demo - most impressive)
+     Opens your webcam. YOLO draws a green box on every vehicle it sees, shows a
+     big VEHICLES count on the video, and prints the count in the terminal.
+     Point the webcam at:
+        - the road / car park out a window, OR
+        - a phone or second screen playing any traffic video (e.g. a YouTube
+          clip of a busy road).
+     Press 'q' in the video window to stop.
+     (If nothing opens, your webcam may be index 1 or 2 - edit --source in the
+      .bat, or just use script 5 below.)
+
+  >> 5_YOLO_Count_On_Sample_Video.bat   (CANNED - guaranteed, no webcam needed)
+     Runs YOLO on a real traffic video that ships in this pack
+     (sumo_scenarios1\sample_traffic_video.mp4). The count updates as cars pass.
+     TIP: you can also DRAG-AND-DROP any traffic photo or video file onto this
+     .bat to run YOLO on it instead.
+
+--------------------------------------------------------------------------------
+  WHAT YOU'LL SEE
+--------------------------------------------------------------------------------
+
+  Terminal (prints a few times a second):
+     frame   123 | VEHICLES IN VIEW:  4  (car=3, bus=1)
+     frame   140 | VEHICLES IN VIEW:  5  (car=4, bus=1)
+
+  Video window: each vehicle in a green box labelled (e.g. "car 0.81"), with a
+  running "VEHICLES: N" banner in the top-left corner.
+
+  YOLO recognises 4 vehicle types: car, motorcycle, bus, truck (COCO classes
+  2, 3, 5, 7). Non-vehicles (people, etc.) are ignored in the count.
+
+--------------------------------------------------------------------------------
+  WHAT TO SAY
+--------------------------------------------------------------------------------
+
+  - "This is the perception half of the system - the camera's eyes."
+  - "YOLOv8 detects each vehicle in real time; I count the vehicles per frame."
+  - "In deployment, this per-approach count is exactly what becomes the state
+     vector the DQN reads - so the same number you see here drives the lights."
+  - "The model file is yolov8n.pt - the 'nano' YOLO, small and fast enough to
+     run on a Raspberry Pi, which is the deployment target."
+
+--------------------------------------------------------------------------------
+  HONEST LIMITS (if asked)
+--------------------------------------------------------------------------------
+
+  - The count is per-frame detection, not vehicle tracking - it can flicker by
+    one or two as boxes appear/disappear. For deployment you'd add a tracker
+    (e.g. ByteTrack) to stabilise counts and avoid double-counting.
+  - Accuracy depends on camera angle, lighting and resolution; a top-down or
+    elevated view per approach works best.
+  - The detection and the control were validated separately here; wiring the
+    live camera count directly into the live controller on hardware is the next
+    integration step (designed, not yet deployed).
+
+--------------------------------------------------------------------------------
+  RUN FROM A TERMINAL INSTEAD (optional)
+--------------------------------------------------------------------------------
+
+  From F:\ai-traffic-light\src :
+     ..\venv\Scripts\python.exe yolo_count_demo.py --source 0
+     ..\venv\Scripts\python.exe yolo_count_demo.py --source ..\sumo_scenarios1\sample_traffic_video.mp4
+     ..\venv\Scripts\python.exe yolo_count_demo.py --source ..\sumo_scenarios1\sample_bus.jpg
+
+  There is also a built-in CLI for labelled live detection:
+     ..\venv\Scripts\python.exe main.py detect-live --source 0 --vehicles-only
+
+================================================================================

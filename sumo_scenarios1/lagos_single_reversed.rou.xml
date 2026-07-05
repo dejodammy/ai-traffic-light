@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+  <!-- ALLEN-DOMINANT (reversed): now the CROSS street (Allen) is the busy one and
+       the arterial (Awolowo) is light. Proves the agent learned "serve the busy
+       road", not "always prioritise Awolowo". -->
+  <vType id="car" accel="2.6" decel="4.5" length="5.0" minGap="2.5"
+         maxSpeed="13.9" departLane="random" lcImpatience="0.8"/>
+
+  <!-- Obafemi Awolowo Way arterial - now LIGHT (~350) -->
+  <flow id="awolowo_a" type="car" begin="0" end="3600" from="610011092#2" to="135617573#1" vehsPerHour="350" departSpeed="max"/>
+  <flow id="awolowo_b" type="car" begin="0" end="3600" from="134404792#3" to="135195291#2" vehsPerHour="350" departSpeed="max"/>
+
+  <!-- Allen Avenue cross - now HEAVY (~1400) -->
+  <flow id="allen_a" type="car" begin="0" end="3600" from="136338240#2" to="134404770#4" vehsPerHour="1400" departSpeed="max"/>
+  <flow id="allen_b" type="car" begin="0" end="3600" from="135617577#1" to="134404795#1" vehsPerHour="1400" departSpeed="max"/>
+
+</routes>

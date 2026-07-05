@@ -1,0 +1,135 @@
+================================================================================
+  LIKELY EXAMINER QUESTIONS + STRONG ANSWERS
+  (A deeper version is in reference\defence_notes.md - this is the quick set.)
+================================================================================
+
+--- THE BASICS -----------------------------------------------------------------
+
+Q: In one sentence, what did you do?
+A: I trained a Deep Q-Network to control the lights at a real Ikeja, Lagos
+   junction - a realistic 4-phase signal - in SUMO, and it cut average queue
+   ~14% and average wait ~16% versus a fixed-time timer, while adapting to
+   changing traffic.
+
+Q: Why is this problem worth solving?
+A: Lagos traffic is among the worst in the world. Most signals run on fixed
+   timers that ignore real demand, so they waste green time on empty approaches
+   while the busy approach jams. An adaptive controller fixes exactly that.
+
+Q: What is reinforcement learning, simply?
+A: Learning by trial and error. The agent tries an action, gets a reward
+   (less congestion = good), and over many attempts learns a policy that
+   maximises long-term reward.
+
+Q: What is a Deep Q-Network (DQN)?
+A: A neural network that estimates the value (expected future reward) of each
+   possible action given the current traffic state. The agent picks the action
+   with the highest predicted value.
+
+--- THE DESIGN -----------------------------------------------------------------
+
+Q: What exactly is the state, action and reward?
+A: STATE = 12 numbers: queue length, waiting time and density for each of the
+   4 approaches. ACTION = which green phase to run next. REWARD = drop in queue
+   and waiting time, with a small penalty for switching phases too frequently.
+
+Q: Why those 12 features?
+A: They capture how congested each direction is and how long people have waited
+   - the two things a good signal must balance. They're also obtainable from a
+   camera, so the design transfers to real hardware.
+
+Q: Why a penalty for switching phases?
+A: Without it the agent could flicker the lights rapidly, which is unsafe and
+   unrealistic. The penalty makes it commit to a phase long enough to be useful.
+
+Q: How does it decide? Continuously?
+A: It makes a decision every few simulation seconds (the decision interval),
+   not every single frame - matching how real adaptive signals work.
+
+--- TRAINING -------------------------------------------------------------------
+
+Q: Walk me through how you trained it.
+A: Two stages. First, imitation pre-training: the network copies a sensible
+   expert rule until it matches it 100% - this gives a fast, safe starting
+   point. Second, RL fine-tuning for 200 episodes with gamma 0.99, which lets
+   it plan ahead and beat the greedy expert.
+
+Q: Why not just RL from scratch?
+A: Pure RL from random weights is slow and unstable on this problem. Warm-
+   starting from imitation made training faster and more reliable - a standard
+   technique (imitation + RL fine-tuning).
+
+Q: What did the training curves show?
+A: Reward rising and queue/wait falling over episodes until they plateaued -
+   see media\training_curves_peak.png. The plateau is why I stopped at 200.
+
+--- RESULTS & VALIDITY ---------------------------------------------------------
+
+Q: Are these numbers realistic?
+A: Yes - the headline -14% queue / -16% wait is on the REAL Ikeja geometry with
+   the REALISTIC 4-phase protected signal and variable demand. That's
+   deliberately the honest case, not an idealised one. RL traffic studies report
+   a wide range; modest, consistent gains on a faithful high-capacity junction
+   are exactly what the literature would predict.
+
+Q: Where does the improvement come from?
+A: RESPONSIVENESS. The model adapts in real time and skips empty approaches
+   instead of serving them on a fixed cycle, so it wins on BOTH queue (~14%) and
+   waiting time (~16%). Against a perfectly-tuned (Webster) fixed timer it
+   roughly ties on average queue but still wins on waiting time - real-time
+   adaptation to fluctuating arrivals is the genuine edge a fixed plan can't match.
+
+Q: How do you know it isn't just memorising?
+A: I tested the approach across several demand patterns on the real geometry and
+   the pattern held: it cuts queue ~20-31% and wins on waiting time wherever
+   demand is asymmetric, and correctly adds little when traffic is balanced -
+   evidence of a learned strategy, not a memorised case.
+
+Q: What is the biggest limitation?
+A: It's trained on one junction with one demand profile, so it doesn't transfer
+   zero-shot to other geometries (weights are intersection-specific) and it only
+   wins when traffic is below saturation and asymmetric. At gridlock no signal
+   policy can help - it's capacity-bound. Fix: train across many junctions and
+   demand patterns (domain randomisation).
+
+Q: What's your baseline and is it fair?
+A: A fixed-time controller cycling on a timer - the standard in Lagos today -
+   run on the exact same traffic as the AI. Same junction, same cars, only the
+   controller differs.
+
+--- REAL WORLD / HARDWARE ------------------------------------------------------
+
+Q: Could this run in real life?
+A: Yes, that's the intended path: a camera + YOLO detector turns the live scene
+   into the same 12-number state, the trained DQN picks the phase, and a
+   Raspberry Pi drives the physical lights through GPIO, logging decisions to a
+   database. The detection and control code already exist; the GPIO/logging
+   bridges are designed as callbacks and are the next implementation step.
+
+Q: How would the controller know the traffic in real life? (the camera/YOLO)
+A: A camera on each approach runs a YOLOv8 vehicle detector that counts cars,
+   buses, motorcycles and trucks; those counts become the same state vector the
+   DQN reads in simulation. I can demo the detection live - it boxes and counts
+   real vehicles from a camera or video feed (see the YOLO demo). YOLOv8-nano is
+   light enough to run on a Raspberry Pi, the deployment target.
+
+Q: Why SUMO instead of testing on a real junction?
+A: Safety and cost. You cannot let an untrained agent control a live junction.
+   SUMO lets you train over thousands of episodes and millions of vehicles
+   safely, then transfer the trained policy.
+
+Q: What about emergencies / pedestrians / sensor failure?
+A: Out of scope for this prototype, and honest about it. The design can extend:
+   an emergency-vehicle override, pedestrian phases, and a safe fixed-time
+   fallback if the camera fails. (An emergency-detector experiment exists in
+   the codebase.)
+
+--- IF YOU GET STUCK -----------------------------------------------------------
+
+  - Buy time: "That's a good question - let me reason through it."
+  - Fall back to the pitch: adaptive control beats fixed timers on uneven
+    demand; my numbers and the live demo show it.
+  - If you genuinely don't know: "I didn't test that specifically, but my
+    approach would be ___." Honesty + a sensible plan scores well.
+
+================================================================================

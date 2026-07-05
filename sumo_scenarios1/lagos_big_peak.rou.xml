@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+  <!-- Realistic turning demand: arterial 1400, cross 280 veh/h/approach; cars spawn far upstream and split left/through/right. -->
+  <vType id="car" accel="2.6" decel="4.5" length="5.0" minGap="2.5" maxSpeed="13.9" departLane="random" lcImpatience="0.8"/>
+  <flow id="artA_0" type="car" from="610011092#1" to="135617573#1" begin="0" end="3600" vehsPerHour="350" departSpeed="max"/>
+  <flow id="artA_1" type="car" from="610011092#1" to="134404770#4" begin="0" end="3600" vehsPerHour="770" departSpeed="max"/>
+  <flow id="artA_2" type="car" from="610011092#1" to="134404795#1" begin="0" end="3600" vehsPerHour="280" departSpeed="max"/>
+  <flow id="artB_0" type="car" from="134404792#0" to="134404795#1" begin="0" end="3600" vehsPerHour="350" departSpeed="max"/>
+  <flow id="artB_1" type="car" from="134404792#0" to="135195291#2" begin="0" end="3600" vehsPerHour="770" departSpeed="max"/>
+  <flow id="artB_2" type="car" from="134404792#0" to="135617573#1" begin="0" end="3600" vehsPerHour="280" departSpeed="max"/>
+  <flow id="crossA_0" type="car" from="136338240#0" to="135195291#2" begin="0" end="3600" vehsPerHour="70" departSpeed="max"/>
+  <flow id="crossA_1" type="car" from="136338240#0" to="135617573#1" begin="0" end="3600" vehsPerHour="154" departSpeed="max"/>
+  <flow id="crossA_2" type="car" from="136338240#0" to="134404770#4" begin="0" end="3600" vehsPerHour="56" departSpeed="max"/>
+  <flow id="crossB_0" type="car" from="135617577#0" to="134404770#4" begin="0" end="3600" vehsPerHour="70" departSpeed="max"/>
+  <flow id="crossB_1" type="car" from="135617577#0" to="134404795#1" begin="0" end="3600" vehsPerHour="154" departSpeed="max"/>
+  <flow id="crossB_2" type="car" from="135617577#0" to="135195291#2" begin="0" end="3600" vehsPerHour="56" departSpeed="max"/>
+</routes>

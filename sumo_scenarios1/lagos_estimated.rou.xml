@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+  <!-- Demand ESTIMATED for the real Obafemi Awolowo Way / Allen Avenue junction,
+       Ikeja (6.6071N, 3.3492E), from road geometry + Lagos traffic studies.
+       Obafemi Awolowo Way = 2-lane arterial; Allen Avenue = 1-lane cross street.
+       Levels set to the busy-but-flowing ("typical hour") regime, ~50% of the
+       estimated rush-hour peak, so the junction is congested but not gridlocked.
+       Sources: ScienceDirect S2468227623002788 (Ikeja volumes); HCM arterial
+       capacity ~1100 veh/h/lane; NIJOTECH 39(2) Nigerian 4-leg counts. -->
+
+  <vType id="car" accel="2.6" decel="4.5" length="5.0" minGap="2.5"
+         maxSpeed="13.9" departLane="random" lcImpatience="0.8"/>
+
+  <!-- ===== Obafemi Awolowo Way arterial (2 lanes, ~760 veh/h each dir) ===== -->
+  <flow id="awolowo_a" type="car" begin="0" end="3600" from="610011092#2" to="135617573#1" vehsPerHour="760" departSpeed="max"/>
+  <flow id="awolowo_b" type="car" begin="0" end="3600" from="134404792#3" to="134404770#4" vehsPerHour="760" departSpeed="max"/>
+
+  <!-- ===== Allen Avenue cross street (1 lane, ~350 veh/h each dir) ===== -->
+  <flow id="allen_a" type="car" begin="0" end="3600" from="136338240#2" to="135195291#2" vehsPerHour="350" departSpeed="max"/>
+  <flow id="allen_b" type="car" begin="0" end="3600" from="135617577#1" to="135617573#1" vehsPerHour="350" departSpeed="max"/>
+
+</routes>

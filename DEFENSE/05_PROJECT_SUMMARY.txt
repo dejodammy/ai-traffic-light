@@ -1,0 +1,81 @@
+================================================================================
+  ONE-PAGE PROJECT SUMMARY  (plain English)
+================================================================================
+
+TITLE
+  Intelligent Traffic Light System Using Deep Reinforcement Learning -
+  A Lagos (Ikeja) Case Study.
+
+PROBLEM
+  Conventional traffic lights run on fixed timers and cannot react to changing
+  traffic. In a city like Lagos, where demand on each road varies wildly, this
+  wastes green time and worsens congestion and delay.
+
+AIM
+  Build and evaluate a traffic-light controller that learns to adapt its signal
+  decisions to real-time demand, and show it outperforms the standard fixed-time
+  controller.
+
+APPROACH (METHODOLOGY)
+  - Simulator: SUMO (open-source urban traffic simulator).
+  - Test site: a real intersection in Ikeja, Lagos, imported from OpenStreetMap.
+  - Controller: a Deep Q-Network (DQN) reinforcement-learning agent.
+  - Signal: realistic 4-phase protected signal - each approach gets its own
+    green (action_dim = 4), as the real junction operates.
+  - State (input): 14 values - queue, waiting time and density per approach,
+    plus the current phase and how long it has been active (phase-aware).
+  - Action (output): which of the 4 protected green phases to run next.
+  - Reward: reduction in congestion (queue + waiting time), minus a small
+    penalty for switching phases too often.
+  - Training: two stages - (1) imitation pre-training to copy a sensible expert
+    rule for a fast start, then (2) reinforcement-learning fine-tuning for 200
+    episodes so the agent learns to plan ahead.
+  - Baseline for comparison: a standard fixed-time signal on identical traffic.
+
+KEY RESULT
+  On the REAL Ikeja junction (OpenStreetMap geometry) with the REALISTIC 4-phase
+  protected signal and variable demand, the trained phase-aware DQN reduced
+  average queue by ~14% (7.62 vs 8.81) and average waiting time by ~16% (143.8
+  vs 171.4) compared to the fixed-time baseline, in simulation - winning on both.
+  The edge comes from real-time adaptation: skipping empty approaches instead of
+  serving them on a fixed cycle.
+
+PERCEPTION
+  A YOLOv8 vehicle detector turns a camera feed into the per-approach vehicle
+  counts the controller needs. This was demonstrated live - detecting and
+  counting real vehicles from a camera/video - and is light enough (YOLOv8-nano)
+  to run on a Raspberry Pi.
+
+GENERALISATION
+  The approach was tested across several demand patterns on the faithful 4-phase
+  junction. It cut queue and waiting time together when demand was uneven and
+  variable - evidence of a learned strategy, not a memorised case. (Against a
+  perfectly-tuned Webster fixed timer it ties on average queue but still wins on
+  waiting time through adaptation; on over-saturated demand no signal policy can
+  win, as the junction is capacity-bound.)
+
+LIMITATIONS
+  - Single junction, single demand profile -> does not transfer zero-shot to
+    other geometries; weights are intersection-specific.
+  - Only wins when traffic is below saturation and asymmetric; at gridlock the
+    junction is capacity-bound and no signal policy can help.
+  - Hardware deployment (camera -> Pi -> physical lights) is designed but the
+    GPIO/logging bridges are not yet implemented.
+
+FUTURE WORK
+  - Train across many junctions and demand patterns (domain randomisation).
+  - Deploy on a Raspberry Pi with a camera (YOLO detection) driving real lights
+    via GPIO, with a database log and a safe fixed-time fallback.
+  - Add emergency-vehicle priority and pedestrian phases.
+
+CONTRIBUTION
+  A working, evaluated demonstration that a learning-based adaptive signal
+  controller substantially outperforms fixed-time control under the uneven
+  traffic conditions typical of Lagos - with an honest account of where it
+  helps, where it doesn't, and what it would take to deploy.
+
+TECH STACK
+  Python, PyTorch (DQN), SUMO + TraCI (simulation), YOLOv8 (vehicle detection),
+  Matplotlib (figures/animation). Raspberry Pi + GPIO targeted for deployment.
+
+================================================================================

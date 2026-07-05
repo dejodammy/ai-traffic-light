@@ -1,0 +1,77 @@
+================================================================================
+  PROJECT DEFENSE PACK
+  Intelligent Traffic Light System Using Deep Reinforcement Learning
+  Lagos (Ikeja) Case Study
+  Oladejo Oluwadamilola
+================================================================================
+
+This folder contains EVERYTHING you need to walk into your defense and present
+with confidence: the slides, a live SUMO demo you can run in front of the panel,
+the exact result numbers, and answers to the questions examiners usually ask.
+
+--------------------------------------------------------------------------------
+  WHAT IS IN THIS FOLDER
+--------------------------------------------------------------------------------
+
+  00_START_HERE.txt ............... This file. Read it first.
+  01_HOW_TO_RUN_THE_DEMO.txt ...... Step-by-step to run the live SUMO demo.
+  02_RESULTS_AND_NUMBERS.txt ...... Every number you may be asked about.
+  03_DEFENSE_QA.txt ............... Likely examiner questions + strong answers.
+  04_TALKING_POINTS.txt ........... A 5-minute spoken script + slide flow.
+  05_PROJECT_SUMMARY.txt .......... One-page plain-English summary.
+  06_YOLO_VEHICLE_DETECTION.txt ... How to run the YOLO vehicle-counting demo.
+
+  slides\ ...... The PowerPoint presentation (.pptx).
+  scripts\ ..... Double-click .bat files - SUMO demos (1-3) + YOLO demos (4-5).
+  media\ ....... GIFs and figures (use these if a live demo can't be run).
+  reference\ ... Deeper technical notes (defence_notes, reports) for backup.
+
+--------------------------------------------------------------------------------
+  THE 60-SECOND PLAN FOR DEFENSE DAY
+--------------------------------------------------------------------------------
+
+  1. Open slides\Intelligent Traffic Light System Using Deep RL - Lagos
+     Case Study.pptx and present from it.
+
+  2. When you reach the demo / results part, switch to the live SUMO demo:
+        - Double-click  scripts\1_Watch_Trained_AI_Live.bat
+        - Then          scripts\2_Watch_FixedTime_Baseline.bat
+     The AI clears the junction; the fixed-timer lets it jam. The contrast is
+     the whole story. (This runs the real 4-phase Ikeja junction.)
+
+  3. To show the "eyes" of the system, run the YOLO demo:
+        - Double-click  scripts\4_YOLO_Live_Webcam_Count.bat  (live webcam), OR
+        - Double-click  scripts\5_YOLO_Count_On_Sample_Video.bat  (canned video)
+     It detects real vehicles and counts them live in the terminal. See
+     06_YOLO_VEHICLE_DETECTION.txt.
+
+  4. If the laptop/projector can't run SUMO live, play the GIFs in media\
+     instead (DQN_on_real_Ikeja_junction.gif shows the AI on the real junction
+     and matches the live demo).
+
+  5. Keep 02_RESULTS_AND_NUMBERS.txt and 03_DEFENSE_QA.txt open on a phone or
+     second screen so you never get stuck on a number or a question.
+
+--------------------------------------------------------------------------------
+  THE ONE-SENTENCE PITCH (memorise this)
+--------------------------------------------------------------------------------
+
+  "I trained a Deep Q-Network to control the lights at a real Ikeja, Lagos
+   junction - a realistic 4-phase signal - in simulation, and it cut the
+   average queue by about 14% and the average waiting time by about 16%
+   compared to the normal fixed-timer, while adapting to changing traffic."
+
+--------------------------------------------------------------------------------
+  IMPORTANT BEFORE YOU LEAVE FOR THE DEFENSE
+--------------------------------------------------------------------------------
+
+  - Test ALL the demo .bat files (1-5) on the actual laptop you will use, the
+    day before - including the YOLO webcam demo with your camera.
+  - Confirm SUMO is installed (default: C:\Program Files (x86)\Eclipse\Sumo).
+    If it is somewhere else, edit the SUMO_HOME line at the top of each .bat.
+  - Have media\ GIFs ready as a fallback in case the live demo misbehaves.
+  - For YOLO, have a phone ready with a traffic video, or use the canned
+    sample-video script (5), in case there's no good view of real vehicles.
+  - Copy this whole DEFENSE folder to a USB stick as backup.
+
+================================================================================

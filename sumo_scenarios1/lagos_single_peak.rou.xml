@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+  <!-- Faithful single Allen/Awolowo junction, REALISTIC RUSH-HOUR (imbalanced):
+       Obafemi Awolowo Way arterial slammed (~1050 veh/h/dir), Allen Ave moderate
+       (~280 veh/h/dir). A fixed 50/50 timer starves the busy arterial; an adaptive
+       agent gives the arterial more green -> big win possible on BOTH metrics. -->
+
+  <vType id="car" accel="2.6" decel="4.5" length="5.0" minGap="2.5"
+         maxSpeed="13.9" departLane="random" lcImpatience="0.8"/>
+
+  <!-- ===== Obafemi Awolowo Way arterial (phase 0) - heavy ===== -->
+  <flow id="awolowo_a" type="car" begin="0" end="3600" from="610011092#2" to="135617573#1" vehsPerHour="1400" departSpeed="max"/>
+  <flow id="awolowo_b" type="car" begin="0" end="3600" from="134404792#3" to="135195291#2" vehsPerHour="1400" departSpeed="max"/>
+
+  <!-- ===== Allen Avenue cross street (phase 2) - moderate ===== -->
+  <flow id="allen_a" type="car" begin="0" end="3600" from="136338240#2" to="134404770#4" vehsPerHour="280" departSpeed="max"/>
+  <flow id="allen_b" type="car" begin="0" end="3600" from="135617577#1" to="134404795#1" vehsPerHour="280" departSpeed="max"/>
+
+</routes>

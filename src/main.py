@@ -77,6 +77,7 @@ def run_train(args) -> int:
         target_update_every=args.target_update_every,
         epsilon_start=args.epsilon_start,
         epsilon_final=args.epsilon_final,
+        epsilon_decay=args.epsilon_decay,
     )
     summary = train_dqn(env_config, train_config, dqn_config)
     print(json.dumps(summary, indent=2))
@@ -482,6 +483,7 @@ def build_parser() -> argparse.ArgumentParser:
     train.add_argument("--pretrained-checkpoint", default=None, help="Path to a pretrained checkpoint to warm-start RL training")
     train.add_argument("--epsilon-start", type=float, default=1.0, help="Starting epsilon (use ~0.2 when warm-starting from a pretrained checkpoint)")
     train.add_argument("--epsilon-final", type=float, default=0.05, help="Final epsilon after decay")
+    train.add_argument("--epsilon-decay", type=int, default=2000, help="Exploration decay steps (raise for harder/more-action problems)")
     train.add_argument("--gui", action="store_true")
     train.set_defaults(handler=run_train)
 

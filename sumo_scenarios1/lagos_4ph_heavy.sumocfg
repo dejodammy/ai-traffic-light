@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <input>
+    <net-file value="lagos_single_4ph.net.xml"/>
+    <route-files value="lagos_single_peak2.rou.xml"/>
+  </input>
+  <time>
+    <begin value="0"/>
+    <end value="3600"/>
+    <step-length value="1"/>
+  </time>
+</configuration>

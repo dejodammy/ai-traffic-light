@@ -1,0 +1,101 @@
+================================================================================
+  PRESENTATION TALKING POINTS - a ~5 minute spoken flow
+================================================================================
+
+Use this as the spine of your talk. Speak to it; don't read it word for word.
+
+--------------------------------------------------------------------------------
+  OPENING (30 sec) - the problem
+--------------------------------------------------------------------------------
+  "Lagos has some of the worst traffic congestion in the world. A big part of
+   the problem is that traffic lights run on fixed timers - they give the same
+   green time to every direction regardless of how many cars are actually
+   waiting. So one road sits empty on green while another is jammed on red.
+   My project asks: can an AI controller do better by adapting to real demand?"
+
+--------------------------------------------------------------------------------
+  THE IDEA (45 sec) - what I built
+--------------------------------------------------------------------------------
+  "I built an intelligent traffic-light controller using Deep Reinforcement
+   Learning - specifically a Deep Q-Network. It looks at how congested each of
+   the four approaches is, and every few seconds it decides which direction
+   should get the green, in order to clear the junction as fast as possible.
+   I trained and tested it on a real Ikeja junction inside SUMO, an open-source
+   traffic simulator."
+   [SHOW: architecture / rl_loop figure]
+
+--------------------------------------------------------------------------------
+  HOW IT WORKS (60 sec) - state / action / reward
+--------------------------------------------------------------------------------
+  "The agent sees a STATE of 12 numbers - queue length, waiting time and
+   density for each approach. Its ACTION is choosing the next green phase. Its
+   REWARD is the reduction in congestion, so it's literally rewarded for
+   clearing queues, with a small penalty so it doesn't flicker the lights.
+   I trained it in two stages: first it imitates a sensible expert rule to get
+   a good starting point fast, then reinforcement learning fine-tunes it over
+   200 episodes so it can plan ahead and beat that rule."
+
+--------------------------------------------------------------------------------
+  THE DEMO (90 sec) - SHOW, don't just tell
+--------------------------------------------------------------------------------
+  "Let me show it running."
+   [RUN: scripts\1_Watch_Trained_AI_Live.bat]
+  "Here's the trained AI on the real junction. Watch it give green to the
+   busiest direction - the queue stays low."
+   [RUN: scripts\2_Watch_FixedTime_Baseline.bat]
+  "Now the same traffic under a normal fixed timer. The queues build up because
+   the timer can't see them. Same cars, same junction - the only difference is
+   the controller."
+   (Fallback if live demo won't run: play media\DQN_on_real_Ikeja_junction.gif)
+
+  OPTIONAL - the perception side (the "eyes"):
+   [RUN: scripts\4_YOLO_Live_Webcam_Count.bat or 5_YOLO_Count_On_Sample_Video.bat]
+  "And here's how it would see the real world: a YOLO detector boxes and counts
+   the vehicles live - that count is exactly what feeds the controller's state
+   in a real deployment, on a camera and a Raspberry Pi."
+
+--------------------------------------------------------------------------------
+  RESULTS (45 sec) - the numbers
+--------------------------------------------------------------------------------
+  "On the real Ikeja junction - the realistic 4-phase signal with variable
+   traffic - the AI cut the average queue by about 14% and the average waiting
+   time by about 16% versus the fixed timer, winning on both. The real value is
+   responsiveness: it adapts in real time and skips empty approaches instead of
+   waiting out a fixed cycle. And the pattern held across demand levels - it
+   wins wherever traffic is uneven and variable. That tells me it learned a real
+   strategy, not just memorised one situation."
+   [SHOW: baseline_comparison / delay_reduction figure]
+
+--------------------------------------------------------------------------------
+  LIMITATIONS + FUTURE (30 sec) - be honest, it scores points
+--------------------------------------------------------------------------------
+  "It's a single-junction prototype trained on one demand pattern, so it doesn't
+   transfer zero-shot to other junctions and it only wins when traffic is below
+   saturation and uneven. The next steps are training across many junctions and
+   demand patterns, and deploying it on a Raspberry Pi with a camera and physical
+   lights - which the system is already designed for."
+
+--------------------------------------------------------------------------------
+  CLOSE (15 sec)
+--------------------------------------------------------------------------------
+  "In short: an adaptive, learning controller clearly beats a fixed timer on
+   uneven traffic - exactly the conditions Lagos faces every day. Thank you -
+   I'm happy to take questions."
+
+--------------------------------------------------------------------------------
+  SLIDE-ORDER CHEAT SHEET (matches a typical project deck)
+--------------------------------------------------------------------------------
+  1. Title
+  2. Problem / motivation (Lagos congestion)
+  3. Aim & objectives
+  4. Literature / background (fixed-time vs adaptive, RL, DQN)
+  5. Methodology (SUMO, the Ikeja junction, state/action/reward)
+  6. Training approach (imitation + RL fine-tuning)
+  7. Demo / system in action  <-- run the live SUMO demo here
+  8. Results & comparison (the tables and figures)
+  9. Robustness / generalisation
+  10. Limitations & future work (hardware, multi-junction)
+  11. Conclusion
+  12. References / Thank you / Questions
+
+================================================================================

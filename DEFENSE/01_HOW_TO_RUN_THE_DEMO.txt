@@ -1,0 +1,91 @@
+================================================================================
+  HOW TO RUN THE LIVE SUMO DEMO
+================================================================================
+
+SUMO is the open-source traffic simulator the whole project runs in. These demos
+open the SUMO window so the panel can SEE the cars, the lights, and the queues.
+They run on the REAL Ikeja junction (imported from OpenStreetMap) - the same
+junction in your case study.
+
+--------------------------------------------------------------------------------
+  ONE-TIME CHECK (do this the day before, on the defense laptop)
+--------------------------------------------------------------------------------
+
+  1. Is SUMO installed?
+     Look for:  C:\Program Files (x86)\Eclipse\Sumo
+     If it is installed somewhere else, open each .bat in scripts\ with Notepad
+     and change the line:
+        set "SUMO_HOME=C:\Program Files (x86)\Eclipse\Sumo"
+     to point at your Sumo folder.
+
+  2. Is the project's Python environment present?
+     It lives at:  F:\ai-traffic-light\venv
+     The .bat files use it automatically. They use relative paths, so they keep
+     working as long as the DEFENSE folder stays inside the project.
+
+--------------------------------------------------------------------------------
+  THE THREE DEMOS (in scripts\ - just double-click)
+--------------------------------------------------------------------------------
+
+  >> 1_Watch_Trained_AI_Live.bat
+     The MAIN demo. Opens SUMO and lets the TRAINED AI drive the lights on the
+     REAL Ikeja junction (scenario: lagos_4ph_random). Watch it give green to
+     whichever direction is most congested. At the end it prints the "Average
+     total queue" - that is the AI's score (lower is better).
+
+  >> 2_Watch_FixedTime_Baseline.bat
+     The COMPARISON. Same junction, same traffic, but a dumb fixed timer that
+     ignores the queues. Queues pile up. Its final average queue/wait is higher.
+     Run this right after demo 1 so the panel sees the difference for themselves.
+
+  >> 3_Run_Live_Training.bat
+     Shows TRAINING actually happening (the agent learning by trial and error,
+     ~15 episodes, GUI open). This is a short demonstration of the *process*.
+     The published results come from the full 200-episode model already saved
+     in results\lagos_4ph_random_rl\ - this demo writes to a separate folder
+     and does NOT overwrite it.
+
+--------------------------------------------------------------------------------
+  WHAT TO SAY WHILE IT RUNS
+--------------------------------------------------------------------------------
+
+  - "This is the real Ikeja junction imported from OpenStreetMap."
+  - "Red / stopped cars are vehicles waiting at the light; green are moving."
+  - "The state the AI sees is the queue, waiting time and density on each
+     approach, plus which phase is active and for how long."
+  - "Every few seconds the AI picks which approach gets the green. Watch it
+     favour the busiest direction and avoid leaving a direction starved."
+  - "Notice the total queue staying low - now compare it to the fixed timer."
+
+--------------------------------------------------------------------------------
+  IF THE LIVE DEMO FAILS (projector/driver/SUMO issue)
+--------------------------------------------------------------------------------
+
+  Don't panic. Open the media\ folder and play:
+     - DQN_on_real_Ikeja_junction.gif  (the AI driving the REAL OSM junction -
+       this matches the live demo; show this one)
+     - DQN_vs_FixedTime_schematic_abstract.gif  (a side-by-side concept
+       animation on a SIMPLIFIED/abstract junction - use only to explain the
+       idea visually, and say out loud it's the schematic case, not the real
+       Ikeja geometry)
+
+--------------------------------------------------------------------------------
+  RUNNING FROM A TERMINAL INSTEAD (optional, advanced)
+--------------------------------------------------------------------------------
+
+  Open PowerShell in F:\ai-traffic-light\src and run:
+
+    # Trained AI on the real junction, GUI:
+    ..\venv\Scripts\python.exe watch_model.py --scenario lagos_4ph_random ^
+        --checkpoint ..\results\lagos_4ph_random_rl\best_dqn_model.pt --delay 300
+
+    # Fixed-time baseline on the same junction, GUI:
+    ..\venv\Scripts\python.exe watch_model.py --scenario lagos_4ph_random --fixed --delay 300
+
+    # Numeric evaluation (no GUI) - prints the comparison table:
+    ..\venv\Scripts\python.exe main.py evaluate --scenario lagos_4ph_random ^
+        --checkpoint ..\results\lagos_4ph_random_rl\best_dqn_model.pt
+
+  (--delay is milliseconds between frames; raise it to slow the GUI down.)
+
+================================================================================

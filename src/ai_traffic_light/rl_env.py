@@ -26,6 +26,14 @@ class EnvConfig:
     queue_norm: float = 20.0
     wait_norm: float = 500.0
     max_approaches: int = 4
+    phase_features: bool = False  # add current-phase + time-in-phase to the state
+    use_acc_wait: bool = False    # penalise ACCUMULATED waiting time (anti-starvation)
+    acc_wait_norm: float = 600.0
+    use_pressure: bool = False    # add per-approach downstream queue (max-pressure signal)
+    use_pressure_reward: bool = False  # PressLight-style reward: minimise intersection pressure
+    pressure_norm: float = 20.0
+    dynamic_duration: bool = False     # PDLight-style: agent chooses phase AND green duration
+    duration_options: tuple = (5, 10, 20)  # green durations (sim steps) the agent can choose
 
 
 class SumoRLEnv:
@@ -37,14 +45,34 @@ class SumoRLEnv:
         self._prev_action: int | None = None
         self._action_phases: tuple[int, ...] = ()
         self._phase_count = 0
+        self._current_action = 0
+        self._time_in_phase = 0
+        self._arrived = 0
 
     @property
     def action_size(self) -> int:
-        return len(self._action_phases)
+        base = len(self._action_phases)
+        if self.cfg.dynamic_duration and base:
+            return base * len(self.cfg.duration_options)
+        return base
+
+    def _decode_action(self, action: int) -> tuple[int, int]:
+        """Return (green-phase index, green duration in sim steps) for an action."""
+        if self.cfg.dynamic_duration:
+            n = len(self.cfg.duration_options)
+            return action // n, int(self.cfg.duration_options[action % n])
+        return action, self.cfg.decision_interval
 
     @property
     def state_size(self) -> int:
-        return self.cfg.max_approaches * 3
+        # max_approaches × (queue, wait, density), +1 downstream-queue (pressure) per approach,
+        # + 2 phase-awareness features, each if enabled
+        size = self.cfg.max_approaches * 3
+        if self.cfg.use_pressure:
+            size += self.cfg.max_approaches
+        if self.cfg.phase_features:
+            size += 2
+        return size
 
     @property
     def action_phases(self) -> tuple[int, ...]:
@@ -72,6 +100,15 @@ class SumoRLEnv:
             groups.setdefault(self._approach_name(lane), []).append(lane)
         self._approach_lanes = groups
         self._approach_ids = sorted(groups)[: self.cfg.max_approaches]
+
+        # map each approach to its downstream (outgoing) lanes for max-pressure features
+        self._approach_downstream: dict[str, list[str]] = {}
+        for link_list in traci.trafficlight.getControlledLinks(self.cfg.tls_id):
+            if not link_list or not link_list[0]:
+                continue
+            in_lane, out_lane = link_list[0][0], link_list[0][1]
+            self._approach_downstream.setdefault(self._approach_name(in_lane), set()).add(out_lane)
+        self._approach_downstream = {a: list(s) for a, s in self._approach_downstream.items()}
 
     @staticmethod
     def _is_green_phase(state: str) -> bool:
@@ -104,28 +141,70 @@ class SumoRLEnv:
         density = float(np.mean([traci.lane.getLastStepOccupancy(lane) for lane in lanes]))
         return queue, wait, density
 
+    def _approach_acc_wait(self, approach: str) -> float:
+        """Accumulated waiting time of the vehicles currently on this approach's lanes."""
+        total = 0.0
+        for lane in self._approach_lanes.get(approach, []):
+            for veh in traci.lane.getLastStepVehicleIDs(lane):
+                total += traci.vehicle.getAccumulatedWaitingTime(veh)
+        return total
+
+    def _approach_downstream_queue(self, approach: str) -> float:
+        """Queue waiting on this approach's DOWNSTREAM lanes (max-pressure signal: a full
+        downstream means serving this approach won't help)."""
+        lanes = self._approach_downstream.get(approach, [])
+        if not lanes:
+            return 0.0
+        return float(sum(traci.lane.getLastStepHaltingNumber(lane) for lane in lanes))
+
     def _get_state(self) -> np.ndarray:
+        approach_dim = self.cfg.max_approaches * 3
         features: list[float] = []
         for approach in self._approach_ids:
             queue, wait, density = self._approach_metrics(approach)
-            features.extend(
-                [
-                    queue / max(self.cfg.queue_norm, 1.0),
-                    wait / max(self.cfg.wait_norm, 1.0),
-                    density / 100.0,
-                ]
-            )
+            # When optimising accumulated wait, the state must EXPOSE accumulated wait so the
+            # agent can observe (and learn to relieve) a starved approach.
+            if self.cfg.use_acc_wait:
+                wait_feat = self._approach_acc_wait(approach) / max(self.cfg.acc_wait_norm, 1.0)
+            else:
+                wait_feat = wait / max(self.cfg.wait_norm, 1.0)
+            features.extend([queue / max(self.cfg.queue_norm, 1.0), wait_feat, density / 100.0])
 
-        while len(features) < self.state_size:
+        while len(features) < approach_dim:
             features.extend([0.0, 0.0, 0.0])
+        features = features[:approach_dim]
 
-        return np.asarray(features[: self.state_size], dtype=np.float32)
+        if self.cfg.use_pressure:
+            # downstream queue per approach (lets the agent learn pressure = upstream - downstream)
+            press = [self._approach_downstream_queue(a) / max(self.cfg.queue_norm, 1.0)
+                     for a in self._approach_ids]
+            while len(press) < self.cfg.max_approaches:
+                press.append(0.0)
+            features.extend(press[: self.cfg.max_approaches])
+
+        if self.cfg.phase_features:
+            # which phase is green now, and how long it has been held
+            phase_feat = self._current_action / max(len(self._action_phases) - 1, 1)
+            time_feat = min(self._time_in_phase / 10.0, 1.0)
+            features.extend([phase_feat, time_feat])
+
+        return np.asarray(features, dtype=np.float32)
 
     def _total_queue(self) -> float:
         return float(sum(self._approach_metrics(approach)[0] for approach in self._approach_ids))
 
     def _total_wait(self) -> float:
         return float(sum(self._approach_metrics(approach)[1] for approach in self._approach_ids))
+
+    def _total_accumulated_wait(self) -> float:
+        """Sum each vehicle's accumulated waiting time (survives stop-and-go, does not
+        reset when the car briefly moves) across all controlled approach lanes."""
+        total = 0.0
+        for approach in self._approach_ids:
+            for lane in self._approach_lanes.get(approach, []):
+                for veh in traci.lane.getLastStepVehicleIDs(lane):
+                    total += traci.vehicle.getAccumulatedWaitingTime(veh)
+        return total
 
     def _run_yellow_if_needed(self, current_phase: int, target_phase: int) -> None:
         if not self.cfg.use_yellow or current_phase == target_phase:
@@ -138,6 +217,7 @@ class SumoRLEnv:
             for _ in range(self.cfg.yellow_duration):
                 traci.simulationStep()
                 self._step += 1
+                self._arrived += traci.simulation.getArrivedNumber()
 
     def reset(self) -> np.ndarray:
         if traci.isLoaded():
@@ -148,6 +228,9 @@ class SumoRLEnv:
         self._init_lanes()
         self._action_phases = self._discover_action_phases()
         self._prev_action = None
+        self._current_action = 0
+        self._time_in_phase = 0
+        self._arrived = 0
         return self._get_state()
 
     def step(self, action: int):
@@ -156,26 +239,47 @@ class SumoRLEnv:
         if action < 0 or action >= self.action_size:
             raise AssertionError(f"Action must be in [0, {self.action_size - 1}].")
 
-        target_phase = self._action_phases[action]
+        phase_idx, duration = self._decode_action(action)
+        target_phase = self._action_phases[phase_idx]
         current_phase = traci.trafficlight.getPhase(self.cfg.tls_id)
-        switched = self._prev_action is not None and action != self._prev_action
+        switched = self._prev_action is not None and phase_idx != self._prev_action
 
         self._run_yellow_if_needed(current_phase, target_phase)
         traci.trafficlight.setPhase(self.cfg.tls_id, target_phase)
 
-        for _ in range(self.cfg.decision_interval):
+        for _ in range(duration):
             traci.simulationStep()
             self._step += 1
+            self._arrived += traci.simulation.getArrivedNumber()
 
         total_queue = self._total_queue()
         total_wait = self._total_wait()
 
-        reward = -(total_queue / max(self.cfg.queue_norm, 1.0) +
-                   self.cfg.wait_weight * total_wait / max(self.cfg.wait_norm, 1.0))
+        if self.cfg.use_pressure_reward:
+            # PressLight (Wei et al., 2019): minimise intersection pressure = sum over approaches
+            # of (incoming queue - downstream queue). Provably throughput-optimal. A small
+            # accumulated-wait term is kept for fairness (anti-starvation).
+            pressure = sum(self._approach_metrics(a)[0] - self._approach_downstream_queue(a)
+                           for a in self._approach_ids)
+            acc = self._total_accumulated_wait() / max(self.cfg.acc_wait_norm, 1.0)
+            reward = -(abs(pressure) / max(self.cfg.pressure_norm, 1.0) + 0.3 * acc)
+        else:
+            if self.cfg.use_acc_wait:
+                # penalise accumulated waiting time so the agent cannot starve an approach
+                wait_term = self._total_accumulated_wait() / max(self.cfg.acc_wait_norm, 1.0)
+            else:
+                wait_term = total_wait / max(self.cfg.wait_norm, 1.0)
+            reward = -(total_queue / max(self.cfg.queue_norm, 1.0) + self.cfg.wait_weight * wait_term)
         if switched:
             reward -= self.cfg.switch_penalty
 
-        self._prev_action = action
+        # track phase-awareness features for the next state
+        if switched or self._prev_action is None:
+            self._time_in_phase = 0
+        else:
+            self._time_in_phase += 1
+        self._current_action = phase_idx   # store PHASE index (not the raw action) for state/switching
+        self._prev_action = phase_idx
 
         state = self._get_state()
         done = self._step >= self.cfg.episode_steps
@@ -185,6 +289,8 @@ class SumoRLEnv:
             "target_phase": target_phase,
             "total_queue": total_queue,
             "total_wait": total_wait,
+            "total_acc_wait": self._total_accumulated_wait(),
+            "arrived_total": self._arrived,
             "switched": switched,
             "action_phases": self._action_phases,
         }
@@ -199,9 +305,10 @@ class SumoRLEnv:
 
     def served_approaches(self, action: int) -> list[str]:
         """Return the approach ids that get a green signal for this action."""
-        if not self._action_phases or action >= len(self._action_phases):
+        phase_idx, _ = self._decode_action(action)
+        if not self._action_phases or phase_idx >= len(self._action_phases):
             return []
-        phase_index = self._action_phases[action]
+        phase_index = self._action_phases[phase_idx]
         logic = traci.trafficlight.getAllProgramLogics(self.cfg.tls_id)[0]
         links = traci.trafficlight.getControlledLinks(self.cfg.tls_id)
         phase = logic.phases[phase_index]
@@ -232,3 +339,4 @@ class SumoRLEnv:
     def close(self) -> None:
         if traci.isLoaded():
             traci.close()
+            

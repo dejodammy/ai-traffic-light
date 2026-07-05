@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+  <!-- Calibrated, below-saturation demand routed THROUGH the real Ikeja junction.
+       Asymmetric: phase-0 approaches are a busy arterial, phase-2 approaches a
+       lighter cross street. A fixed timer wastes green on the light side; an
+       adaptive agent should give the arterial more green and cut total queue. -->
+
+  <vType id="car" accel="2.6" decel="4.5" length="5.0" minGap="2.5"
+         maxSpeed="13.9" departLane="random" lcImpatience="0.8"/>
+
+  <!-- ===== Busy arterial (served by ACTION 0 / phase 0) ===== -->
+  <flow id="art_a" type="car" begin="0" end="3600" from="610011092#2" to="135617573#1" vehsPerHour="520" departSpeed="max"/>
+  <flow id="art_b" type="car" begin="0" end="3600" from="134404792#3" to="134404770#4" vehsPerHour="520" departSpeed="max"/>
+
+  <!-- ===== Lighter cross street (served by ACTION 1 / phase 2) ===== -->
+  <flow id="cross_a" type="car" begin="0" end="3600" from="136338240#2" to="135195291#2" vehsPerHour="180" departSpeed="max"/>
+  <flow id="cross_b" type="car" begin="0" end="3600" from="135617577#1" to="135617573#1" vehsPerHour="180" departSpeed="max"/>
+
+</routes>
